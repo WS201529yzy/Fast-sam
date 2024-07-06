@@ -60,7 +60,7 @@ Then, you can run the scripts to try the everything mode and three prompt modes.
 
 ```shell
 # Everything mode
-python Inference.py --model_path ./weights/FastSAM.pt --img_path ./images/dogs.jpg
+python Inference.py --model_path ./weights/FastSAM-x.pt --img_path ./images/dogs.jpg
 ```
 
 ```shell
