@@ -65,24 +65,24 @@ python Inference.py --model_path ./weights/FastSAM-x.pt --img_path ./images/dogs
 
 ```shell
 # Text prompt
-python Inference.py --model_path ./weights//FastSAM-x.pt --img_path ./images/dogs.jpg  --text_prompt "the yellow dog"
+python Inference.py --model_path ./weights/FastSAM-x.pt --img_path ./images/dogs.jpg  --text_prompt "the yellow dog"
 ```
 
 ```shell
 # Box prompt (xywh)
-python Inference.py --model_path ./weights//FastSAM-x.pt --img_path ./images/dogs.jpg --box_prompt "[[570,200,230,400]]"
+python Inference.py --model_path ./weights/FastSAM-x.pt --img_path ./images/dogs.jpg --box_prompt "[[570,200,230,400]]"
 ```
 
 ```shell
 # Points prompt
-python Inference.py --model_path ./weights//FastSAM-x.pt --img_path ./images/dogs.jpg  --point_prompt "[[520,360],[620,300]]" --point_label "[1,0]"
+python Inference.py --model_path ./weights/FastSAM-x.pt --img_path ./images/dogs.jpg  --point_prompt "[[520,360],[620,300]]" --point_label "[1,0]"
 ```
 
 You can use the following code to generate all masks and visualize the results.
 ```shell
 from fastsam import FastSAM, FastSAMPrompt
 
-model = FastSAM('./weights//FastSAM-x.pt')
+model = FastSAM('./weights/FastSAM-x.pt')
 IMAGE_PATH = './images/dogs.jpg'
 DEVICE = 'cpu'
 everything_results = model(IMAGE_PATH, device=DEVICE, retina_masks=True, imgsz=1024, conf=0.4, iou=0.9,)
@@ -129,7 +129,7 @@ Training from scratch or validation: [Training and Validation Code](https://gith
 - We also provide a UI for testing our method that is built with gradio. You can upload a custom image, select the mode and set the parameters, click the segment button, and get a satisfactory segmentation result. Currently, the UI supports interaction with the 'Everything mode' and 'points mode'. We plan to add support for additional modes in the future. Running the following command in a terminal will launch the demo:
 
 ```
-# Download the pre-trained model in "./weights//FastSAM-x.pt"
+# Download the pre-trained model in "./weights/FastSAM-x.pt"
 python app_gradio.py
 ```
 
