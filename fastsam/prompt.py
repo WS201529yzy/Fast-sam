@@ -4,19 +4,19 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from .utils import image_to_np_ndarray
+from utils import image_to_np_ndarray
 from PIL import Image
 
 
 class FastSAMPrompt:
 
-    def __init__(self, image, results, device='cuda'):
+    def __init__(self, image, results, device='cuda') -> None:
         if isinstance(image, str) or isinstance(image, Image.Image):
             image = image_to_np_ndarray(image)
         self.device = device
         self.results = results
         self.img = image
-    
+
     def _segment_image(self, image, bbox):
         if isinstance(image, Image.Image):
             image_array = np.array(image)
@@ -91,7 +91,8 @@ class FastSAMPrompt:
              mask_random_color=True,
              better_quality=True,
              retina=False,
-             withContours=True) -> np.ndarray:
+             withContours=True,
+             mask_alpha=0.6) -> np.ndarray:
         if isinstance(annotations[0], dict):
             annotations = [annotation['segmentation'] for annotation in annotations]
         image = self.img
@@ -126,6 +127,7 @@ class FastSAMPrompt:
                 retinamask=retina,
                 target_height=original_h,
                 target_width=original_w,
+                mask_alpha=mask_alpha
             )
         else:
             if isinstance(annotations[0], np.ndarray):
@@ -140,6 +142,7 @@ class FastSAMPrompt:
                 retinamask=retina,
                 target_height=original_h,
                 target_width=original_w,
+                mask_alpha=mask_alpha
             )
         if isinstance(annotations, torch.Tensor):
             annotations = annotations.cpu().numpy()
@@ -189,9 +192,8 @@ class FastSAMPrompt:
              mask_random_color=True,
              better_quality=True,
              retina=False,
-             withContours=True):
-        if len(annotations) == 0:
-            return None
+             withContours=True,
+             mask_alpha=0.6):
         result = self.plot_to_result(
             annotations, 
             bboxes, 
@@ -201,6 +203,7 @@ class FastSAMPrompt:
             better_quality, 
             retina, 
             withContours,
+            mask_alpha
         )
 
         path = os.path.dirname(os.path.abspath(output_path))
@@ -221,6 +224,7 @@ class FastSAMPrompt:
         retinamask=True,
         target_height=960,
         target_width=960,
+        mask_alpha=0.6,
     ):
         msak_sum = annotation.shape[0]
         height = annotation.shape[1]
@@ -235,7 +239,7 @@ class FastSAMPrompt:
             color = np.random.random((msak_sum, 1, 1, 3))
         else:
             color = np.ones((msak_sum, 1, 1, 3)) * np.array([30 / 255, 144 / 255, 255 / 255])
-        transparency = np.ones((msak_sum, 1, 1, 1)) * 0.6
+        transparency = np.ones((msak_sum, 1, 1, 1)) * mask_alpha
         visual = np.concatenate([color, transparency], axis=-1)
         mask_image = np.expand_dims(annotation, -1) * visual
 
@@ -278,6 +282,7 @@ class FastSAMPrompt:
         retinamask=True,
         target_height=960,
         target_width=960,
+        mask_alpha=0.6
     ):
         msak_sum = annotation.shape[0]
         height = annotation.shape[1]
@@ -292,15 +297,12 @@ class FastSAMPrompt:
         else:
             color = torch.ones((msak_sum, 1, 1, 3)).to(annotation.device) * torch.tensor([
                 30 / 255, 144 / 255, 255 / 255]).to(annotation.device)
-        transparency = torch.ones((msak_sum, 1, 1, 1)).to(annotation.device) * 0.6
+        transparency = torch.ones((msak_sum, 1, 1, 1)).to(annotation.device) * mask_alpha
         visual = torch.cat([color, transparency], dim=-1)
         mask_image = torch.unsqueeze(annotation, -1) * visual
         # Select data according to the index. The index indicates which batch's data to choose at each position, converting the mask_image into a single batch form.
         show = torch.zeros((height, weight, 4)).to(annotation.device)
-        try:
-            h_indices, w_indices = torch.meshgrid(torch.arange(height), torch.arange(weight), indexing='ij')
-        except:
-            h_indices, w_indices = torch.meshgrid(torch.arange(height), torch.arange(weight))
+        h_indices, w_indices = torch.meshgrid(torch.arange(height), torch.arange(weight), indexing='ij')
         indices = (index[h_indices, w_indices], h_indices, w_indices, slice(None))
         # Use vectorized indexing to update the values of 'show'.
         show[h_indices, w_indices, :] = mask_image[indices]
@@ -453,4 +455,3 @@ class FastSAMPrompt:
         if self.results == None:
             return []
         return self.results[0].masks.data
-        
