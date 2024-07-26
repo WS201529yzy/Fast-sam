@@ -4,7 +4,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from utils import image_to_np_ndarray
+from .utils import image_to_np_ndarray
 from PIL import Image
 
 
