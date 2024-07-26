@@ -194,6 +194,8 @@ class FastSAMPrompt:
              retina=False,
              withContours=True,
              mask_alpha=0.6):
+        if len(annotations) == 0:
+            return None
         result = self.plot_to_result(
             annotations, 
             bboxes, 
