@@ -44,7 +44,7 @@ def bbox_iou(box1, boxes, iou_thres=0.9, image_shape=(640, 640), raw_output=Fals
     box1: (4, )
     boxes: (n, 4)
     Returns:
-    high_iou_indices: Indices of boxes with IoU > thres
+    high_iou_indices: Indices of boxes with IoU > thres sorted in descending order
     '''
     boxes = adjust_bboxes_to_image_border(boxes, image_shape)
     # obtain coordinates for intersections
@@ -72,8 +72,9 @@ def bbox_iou(box1, boxes, iou_thres=0.9, image_shape=(640, 640), raw_output=Fals
 
     # get indices of boxes with IoU > thres
     high_iou_indices = torch.nonzero(iou > iou_thres).flatten()
+    sorted_high_iou_indices = high_iou_indices[torch.argsort(iou[high_iou_indices], descending=True)]
 
-    return high_iou_indices
+    return sorted_high_iou_indices
 
 
 def image_to_np_ndarray(image):
